@@ -187,7 +187,7 @@ while (done_opc == 1)
                 minave.pos++;
             }
             break;
-        case ALLEGRO_KEY_ENTER:
+        case ALLEGRO_KEY_SPACE:
             done_opc = 0;
             break;
         }
@@ -363,6 +363,14 @@ int battlepage(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *background, int opcion)
             done = 0;
         }
         else{
+            if (gamecounter == 5)
+            {
+                al_draw_text(fuente, white, layout_ancho * 3, layout_alto * 2, ALLEGRO_ALIGN_CENTRE, "Ganaste");
+                al_draw_text(fuente, white, layout_ancho * 3, layout_alto * 3, ALLEGRO_ALIGN_CENTRE, "Presiona escape para salir");
+
+            }
+            else{
+
             vidaenemy[res - 1].vida = 0;
             enemigos(3, enemigo, vidaenemy, white, bull);
             al_rest(2.0);
@@ -370,14 +378,11 @@ int battlepage(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *background, int opcion)
             k++;
             bandera = 0;
 
-            if (gamecounter == 5)
-            {
-                done = 0;
-            }
-
             question(controller, pre[k], white, fuente);        
 
             minave =  navefly(minave, nave_im, layout_ancho);
+
+            }
             
         }
 
