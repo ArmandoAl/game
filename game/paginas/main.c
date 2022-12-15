@@ -1,16 +1,14 @@
 #include "../configuracion/library.h"
 
 typedef struct node{
-    char question[150];
-    char op1[15];
-    char op2[15];
-    char op3[15];
+    char question[50];
+    char op1[20];
+    char op2[20];
+    char op3[20];
     int correct;
 } Question;
 
-Question pre[10];
-
-
+Question pre[5];
 
 int inicio(int ancho, int alto, ALLEGRO_BITMAP *background, ALLEGRO_BITMAP *logo, ALLEGRO_EVENT_QUEUE *event_queue, ALLEGRO_DISPLAY *display);
 int battlepage(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *background, int opcion);
@@ -211,20 +209,20 @@ int battlepage(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *background, int opcion)
     switch (opcion)
     {
     case 1:
-        archivo = fopen("../archivos/MS_Suma.txt", "r");
+        archivo = fopen("../archivos/MS_SUMA.txt", "r");
         controller = 1;
         break;
     case 2:
-        archivo = fopen("../archivos/MS_Mixta.txt", "r");
+        archivo = fopen("../archivos/MS_MIXTA.txt", "r");
         controller = 1;
         break;
     case 3:
-        archivo = fopen("../archivos/MS_Multiplicacion.txt", "r");
+        archivo = fopen("../archivos/MS_MULT.txt", "r");
         controller = 1;
         break;
     case 4:
-        archivo = fopen("../archivos/MS_HighLow.txt", "r");
-        controller = 2;
+        archivo = fopen("../archivos/MS_HIGH.txt", "r");
+        controller = 1;
         break;
     default:
         break;
@@ -334,19 +332,54 @@ int battlepage(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *background, int opcion)
     }
 
     int k = 0;
-    int res = 3;
+    int res;
+    int bandera = 0;
+    int gamecounter = 0;
+    char message[] = "x/5";
 
     while (done == 1)
     {
+        al_flip_display();
+        res = pre[k].correct;
         al_clear_to_color(al_map_rgb(0, 0, 0));
         al_draw_bitmap(background, 0, 0, 0);
 
         // al_draw_bitmap(logo,0,0,0);
-        enemigos(3, enemigo, vidaenemy, white, bull);
+        if (bandera == 0)
+        {
+            enemigos(3, enemigo, vidaenemy, white, bull);
+            question(controller, pre[k], white, fuente);        
+            minave =  navefly(minave, nave_im, layout_ancho);
 
-        question(controller, pre[k], white, fuente);        
+        } else if (bandera == 2)
+        {
+            al_draw_text(fuente, white, layout_ancho * 3, layout_alto * 2, ALLEGRO_ALIGN_CENTRE, "Game over");
 
-        minave =  navefly(minave, nave_im, layout_ancho);
+            message[0] =  gamecounter + '0';
+
+            al_draw_text(fuente, white, (layout_ancho * 3) - 5, layout_alto * 3, ALLEGRO_ALIGN_CENTRE, message);
+            al_flip_display();
+            al_rest(2.0);
+            done = 0;
+        }
+        else{
+            vidaenemy[res - 1].vida = 0;
+            enemigos(3, enemigo, vidaenemy, white, bull);
+            al_rest(2.0);
+            vidaenemy[res - 1].vida = 1;
+            k++;
+            bandera = 0;
+
+            if (gamecounter == 5)
+            {
+                done = 0;
+            }
+
+            question(controller, pre[k], white, fuente);        
+
+            minave =  navefly(minave, nave_im, layout_ancho);
+            
+        }
 
         al_flip_display();
 
@@ -369,17 +402,22 @@ int battlepage(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *background, int opcion)
                 }
                 break;
             case ALLEGRO_KEY_SPACE:
-                bala(mibala, minave, red, layout_alto);
                 if (minave.pos == res)
                 {
-                    vidaenemy[res - 1].vida = 0;
+                    gamecounter++;
+                    bala(mibala, minave, red, layout_alto);
+                    bandera = 1;
+                    
                 }
                 else
                 {
+                    bala(mibala, minave, red, layout_alto);
                     ataque(enemibala, enemigo, white, layout_alto, minave.pos);
+                    bandera = 2;
                 }
                 break;
             case ALLEGRO_KEY_ESCAPE:
+                printf("%d", pre[k].correct);
                 done= 0;
                 break;
             }
@@ -408,39 +446,6 @@ Enemy configenemigo(Enemy enemigo, int ancho, int alto){
     enemigo.alto = 30;
     return enemigo;
 }   
-
-
-//funciones
-// Question config_game_options(FILE* archivo, Question pre[], int option){
-//         if(archivo != NULL){
-//         int i = 0;
-//         if(option == 1){
-//             while (!feof(archivo))
-//             {
-//             fscanf(archivo, "%s %s %s %s %d", aux.question, aux.op1, aux.op2, aux.op3, &aux.correct);
-
-//             pre[i] = aux;
-//             pre[i].id = i;
-
-//             i++;
-//             }
-//         }
-//         else{
-//             while (!feof(archivo))
-//             {
-//             fscanf(archivo, "%s %s %s %d", aux.question, aux.op1, aux.op2, &aux.correct);
-
-//             pre[i] = aux;
-//             pre[i].id = i;
-
-//             i++;
-//             }
-//         }
-//         fclose(archivo);
-//     }
-
-//     return pre;
-// }
 
 void question(int auxi, Question aux, ALLEGRO_COLOR white, ALLEGRO_FONT *fuente){
     if(auxi == 2){
@@ -487,8 +492,8 @@ void bala(Bullet mibala, Ship minave, ALLEGRO_COLOR white, int layout_alto)
     {
 
         al_draw_bitmap(bullet, (mibala.x + 25), mibala.y, 0);
-        al_flip_display();
         mibala.y = mibala.y - 10;
+        al_flip_display();
     }
 }
 
